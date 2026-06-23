@@ -34,3 +34,5 @@
 - [architecture](architecture.md) — Layer diagram and service topology
 - [configuration](configuration.md) — How to initialize the SDK
 - [api-reference](api-reference.md) — Full public API lookup
+- [index](index.md) — Navigation hub + the interactive Command Centre (graph + dashboards)
+- [WIKI](WIKI.md) — How the knowledge graph stays in sync with the code (hash-gated automation)

@@ -1,30 +1,38 @@
 # Wiki Schema
 
-This wiki is a structured, agent-maintained knowledge base for the {{PROJECT_NAME}} SDK. It sits between the raw source code (Layer 1) and agent memory (context). Agents read the wiki to gain full project context without re-reading all source files.
+This wiki is a structured, agent-maintained knowledge base for {{PROJECT_NAME}}. It is also
+an **Obsidian vault** with a **graphify knowledge graph** and an interactive **Command Centre**
+plugin. It sits between the raw inputs (Layer 1) and agent memory (context): agents read the
+wiki to gain full context without re-reading every source file or note.
+
+It runs in either mode (or a hub spanning many) — see `README.md` and `SETUP_PROMPT.md`:
+- **Code Wiki** — pages generated from a codebase (`services/ types/ flows/ api/ security/ concepts/`).
+- **Knowledge Vault** — business domains via the Command Centre (`clients/ finance/ projects/ knowledge/`).
 
 ## Layers
 
-1. **Raw sources** — the codebase. Immutable. Agents read but never modify.
-2. **Wiki** — this directory of markdown pages. Agents own this layer. Humans read it.
-3. **Schema** — this file. Tells agents how to maintain the wiki.
+1. **Raw inputs** — the codebase and/or authored notes. Agents read but never silently rewrite.
+2. **Wiki** — this directory of markdown pages + frontmatter entities. Agents own this layer; humans read it.
+3. **Schema** — this file + `SCHEMA.md`. Tells agents how to maintain the wiki and dashboards.
+4. **Knowledge graph** — derived, generated into `graph/` by graphify; never authored by hand and never hashed (see Automation).
 
 ## Directory Structure
 
 ```
-wiki/
-├── WIKI.md              (this file)
-├── index.md             (navigation hub)
-├── overview.md          (one-page SDK synthesis)
-├── api-reference.md     (condensed public API lookup)
-├── architecture.md      (layer diagram, service topology)
-├── configuration.md     (SDK init, singleton, identity values)
+wiki/                    (the Obsidian vault)
+├── WIKI.md              (this file)             SCHEMA.md   (entity frontmatter contracts)
+├── index.md             (navigation hub)        FEDERATION.md (hub mode)
+├── overview.md  architecture.md  configuration.md  api-reference.md   (Code Wiki top pages)
 ├── log.md               (chronological change log)
-├── services/            (one page per service)
-├── types/               (pages for important public types)
-├── flows/               (sequence diagrams and step-by-step flows)
-├── api/                 (HTTP client and endpoint docs)
-├── security/            (crypto, key management, secure storage)
-└── concepts/            (cross-cutting architectural concepts)
+├── services/ types/ flows/ api/ security/ concepts/   (Code Wiki domains)
+├── clients/ finance/ projects/ knowledge/             (Knowledge Vault domains)
+├── entities/            (frontmatter note templates per type)
+├── graph/               (generated knowledge graph: graph.html, GRAPH_REPORT.md, nodes/)
+├── obsidian-plugin/     (Command Centre plugin source)
+├── .command-centre/     (dashboards.yaml — hub/widget config)
+├── .obsidian/           (vault config: graph colors, enabled plugins)
+├── wiki-hash.sh  wiki-sync.sh  wiki-graph.sh  wiki-federate.sh  wiki-auto-update.sh
+└── .source-hashes.json  .file-wiki-map.tsv     (hash baseline + source→page map)
 ```
 
 ## Naming Conventions
