@@ -95,7 +95,8 @@ write_fed_hashes() {
     if [ "$first" = true ]; then first=false; else echo "," >> "$tmp"; fi
     printf '  "%s": "%s"' "$name" "$h" >> "$tmp"
   done
-  # `first` is lost to the subshell; just always close cleanly (trailing entries handled by commas above).
+  # The whole `registry_rows | while` runs in one subshell, so `first` persists across
+  # iterations and the comma logic is correct (verified: valid JSON for N entries).
   echo "" >> "$tmp"
   echo "}" >> "$tmp"
   mv "$tmp" "$FED_HASHES"
@@ -109,7 +110,8 @@ has_drift() {
     [ -f "$gjson" ] || continue
     local cur stored
     cur="$(hash_file "$gjson")"
-    stored="$(grep -E "\"$name\"[[:space:]]*:" "$FED_HASHES" | sed -E 's/.*: *"([0-9a-f]*)".*/\1/' | head -1)"
+    # grep -F so a wiki name with regex metacharacters (e.g. "my.wiki") matches literally.
+    stored="$(grep -F "\"$name\":" "$FED_HASHES" 2>/dev/null | sed -E 's/.*: *"([0-9a-f]*)".*/\1/' | head -1)"
     if [ "$cur" != "$stored" ]; then drift=0; fi
   done < <(registry_rows)
   return $drift
@@ -121,18 +123,16 @@ do_merge_export() {
     echo "ERROR: graphify not found on PATH. Install it: pip install graphifyy" >&2
     return 1
   fi
-  local graphs
-  graphs="$(mergeable_graphs)"
-  if [ -z "$graphs" ]; then
+  # Collect into an array so graph paths containing spaces are not word-split (bash 3.x ok).
+  local graphs_arr=()
+  while IFS= read -r g; do [ -n "$g" ] && graphs_arr+=("$g"); done < <(mergeable_graphs)
+  if [ "${#graphs_arr[@]}" -eq 0 ]; then
     echo "No child graphs to merge. Build each child's graph first (wiki-graph.sh build)." >&2
     return 1
   fi
-  local n
-  n="$(echo "$graphs" | grep -c .)"
-  echo "Merging $n child graph(s) into the master graph..."
+  echo "Merging ${#graphs_arr[@]} child graph(s) into the master graph..."
   mkdir -p "$MASTER/graphify-out"
-  # shellcheck disable=SC2046
-  if ! ( cd "$MASTER" && graphify merge-graphs $(echo "$graphs" | tr '\n' ' ') --out graphify-out/graph.json 2>&1 | tail -4 ); then
+  if ! ( cd "$MASTER" && graphify merge-graphs "${graphs_arr[@]}" --out graphify-out/graph.json 2>&1 | tail -4 ); then
     echo "ERROR: merge-graphs failed." >&2
     return 1
   fi
@@ -175,7 +175,7 @@ do_status() {
     if [ ! -f "$gjson" ]; then missing=$((missing+1)); continue; fi
     local cur stored
     cur="$(hash_file "$gjson")"
-    stored="$(grep -E "\"$name\"[[:space:]]*:" "$FED_HASHES" 2>/dev/null | sed -E 's/.*: *"([0-9a-f]*)".*/\1/' | head -1)"
+    stored="$(grep -F "\"$name\":" "$FED_HASHES" 2>/dev/null | sed -E 's/.*: *"([0-9a-f]*)".*/\1/' | head -1)"
     [ "$cur" != "$stored" ] && drifted=$((drifted+1))
   done < <(registry_rows)
 

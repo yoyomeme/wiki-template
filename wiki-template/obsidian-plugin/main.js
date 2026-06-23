@@ -94,44 +94,52 @@ function run(cmd, args, cwd) {
     child.on("close", (code) => resolve({ code: code ?? -1, stdout, stderr }));
   });
 }
+var SAFE_DIR = /^[A-Za-z0-9 _./~-]+$/;
 var Runner = class {
   constructor(scriptsDir, graphifyBin) {
     this.scriptsDir = scriptsDir;
     this.graphifyBin = graphifyBin;
   }
-  graphScript() {
-    return `${this.scriptsDir}/wiki-graph.sh`;
+  dirOk() {
+    return this.scriptsDir.length > 0 && SAFE_DIR.test(this.scriptsDir);
   }
-  federateScript() {
-    return `${this.scriptsDir}/wiki-federate.sh`;
+  sh(script, args) {
+    if (!this.dirOk()) {
+      return Promise.resolve({
+        code: -1,
+        stdout: "",
+        stderr: `Scripts directory is empty or contains unsafe characters: "${this.scriptsDir}". Set a valid absolute path in the plugin settings.`
+      });
+    }
+    return run("bash", [`${this.scriptsDir}/${script}`, ...args], this.scriptsDir);
   }
   graphStatus() {
-    return run("bash", [this.graphScript(), "status", "--json"], this.scriptsDir);
+    return this.sh("wiki-graph.sh", ["status", "--json"]);
   }
   graphBuild() {
-    return run("bash", [this.graphScript(), "build"], this.scriptsDir);
+    return this.sh("wiki-graph.sh", ["build"]);
   }
   graphUpdate() {
-    return run("bash", [this.graphScript(), "update"], this.scriptsDir);
+    return this.sh("wiki-graph.sh", ["update"]);
   }
   graphRefresh() {
-    return run("bash", [this.graphScript(), "refresh"], this.scriptsDir);
+    return this.sh("wiki-graph.sh", ["refresh"]);
   }
   federateStatus() {
-    return run("bash", [this.federateScript(), "status", "--json"], this.scriptsDir);
+    return this.sh("wiki-federate.sh", ["status", "--json"]);
   }
   federateUpdate() {
-    return run("bash", [this.federateScript(), "update"], this.scriptsDir);
+    return this.sh("wiki-federate.sh", ["update"]);
   }
   federateBuild() {
-    return run("bash", [this.federateScript(), "build"], this.scriptsDir);
+    return this.sh("wiki-federate.sh", ["build"]);
   }
   /**
    * Run a natural-language query against the built graph. Delegated to wiki-graph.sh, which
    * runs `graphify query` from the directory where graphify-out/graph.json lives.
    */
   query(question) {
-    return run("bash", [this.graphScript(), "query", question], this.scriptsDir);
+    return this.sh("wiki-graph.sh", ["query", question]);
   }
 };
 
@@ -335,10 +343,6 @@ function matchesRule(e, rule, now) {
     case "gt":
       return Number(raw) > Number(rule.value);
     case "overdue": {
-      const d = parseDate(raw);
-      return d != null && d.getTime() < now.getTime();
-    }
-    case "before_today": {
       const d = parseDate(raw);
       return d != null && d.getTime() < now.getTime();
     }

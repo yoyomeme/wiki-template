@@ -79,7 +79,11 @@ ensure_graphify() {
     return 1
   fi
   mkdir -p "$GRAPHIFY_OUT"
-  "$GPY" -c "import sys; open('$GRAPHIFY_OUT/.graphify_python','w',encoding='utf-8').write(sys.executable)"
+  # Write the interpreter path from bash (not embedded in a Python -c string) so a repo path
+  # containing a single quote can't break out of the Python literal.
+  local gpy_exe
+  gpy_exe="$("$GPY" -c 'import sys; print(sys.executable)')"
+  printf '%s' "$gpy_exe" > "$GRAPHIFY_OUT/.graphify_python"
   return 0
 }
 
@@ -137,11 +141,13 @@ EOF
 # ---- changed-file partition from the wiki hash diff ------------------------------------
 # Echoes two lines: "CODE <n>" and "DOC <n>" plus the changed file list on stderr-free path.
 changed_files() {
+  # Array elements in wiki-hash.sh's JSON are 4-space-indented quoted lines; the key lines
+  # ("changed":, "added":) use 2 spaces. Selecting '^    "' yields only file paths — robust
+  # to filenames that contain words like "changed" or that have no '/' (root-level files).
   bash "$SCRIPT_DIR/wiki-hash.sh" diff 2>/dev/null \
-    | awk '/"changed":/,/\]/{print} /"added":/,/\]/{print}' \
-    | grep '"' | awk -F'"' '{print $2}' \
-    | grep -v 'changed\|added\|removed\|count\|timestamp\|has_changes\|total' \
-    | grep '/' | sort -u
+    | grep -E '^    "' \
+    | sed -E 's/^    "//; s/",?$//' \
+    | sort -u
 }
 
 classify_changes() {
@@ -251,6 +257,10 @@ do_query() {
   if [ -z "$q" ]; then echo "Usage: $0 query \"<question>\"" >&2; return 1; fi
   if [ ! -f "$GRAPHIFY_OUT/graph.json" ]; then
     echo "No graph yet. Run 'wiki-graph.sh build' first." >&2
+    return 1
+  fi
+  if ! command -v graphify >/dev/null 2>&1; then
+    echo "ERROR: graphify not found on PATH." >&2
     return 1
   fi
   ( cd "$REPO_ROOT" && graphify query "$q" )

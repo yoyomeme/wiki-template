@@ -12,7 +12,7 @@ export type WidgetType =
 
 export interface FilterRule {
   field: string;
-  // one of: equals / in / not / lt / gt / nonempty / before_today / overdue / within_days
+  // one of: equals / in / not / lt / gt / nonempty / overdue / within_days
   op: string;
   value?: any;
 }

@@ -53,7 +53,7 @@ build_file_list() {
     # (plain git pathspec does NOT — 'src/**/*.kt' would miss files directly in src/).
     cd "$REPO_ROOT" && git ls-files -- ":(glob)$pattern" 2>/dev/null || true
   done | grep -v '/.build/' | grep -v '/node_modules/' | grep -v '/dist/' \
-       | grep -v 'wiki/graph/' | grep -v 'graphify-out/' | sort -u
+       | grep -v '^wiki/graph/' | grep -v '^graphify-out/' | sort -u
 }
 
 # Snapshot: hash all files and write to .source-hashes.json
@@ -146,19 +146,19 @@ do_diff() {
 
   echo "  \"changed\": ["
   if [ "$n_changed" -gt 0 ]; then
-    sed 's/^/    "/; s/$/"/' "$changed_tsv" | sed '$ s/$/,/'
+    sed 's/^/    "/; s/$/"/' "$changed_tsv" | sed '$!s/$/,/'
   fi
   echo "  ],"
 
   echo "  \"added\": ["
   if [ "$n_added" -gt 0 ]; then
-    sed 's/^/    "/; s/$/"/' "$added_tsv" | sed '$ s/$/,/'
+    sed 's/^/    "/; s/$/"/' "$added_tsv" | sed '$!s/$/,/'
   fi
   echo "  ],"
 
   echo "  \"removed\": ["
   if [ "$n_removed" -gt 0 ]; then
-    sed 's/^/    "/; s/$/"/' "$removed_tsv" | sed '$ s/$/,/'
+    sed 's/^/    "/; s/$/"/' "$removed_tsv" | sed '$!s/$/,/'
   fi
   echo "  ]"
 

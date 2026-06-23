@@ -75,10 +75,7 @@ export function matchesRule(e: Entity, rule: FilterRule, now: Date): boolean {
     case "gt":
       return Number(raw) > Number(rule.value);
     case "overdue": {
-      const d = parseDate(raw);
-      return d != null && d.getTime() < now.getTime();
-    }
-    case "before_today": {
+      // `now` is midnight today, so a date of today is NOT overdue (only strictly earlier).
       const d = parseDate(raw);
       return d != null && d.getTime() < now.getTime();
     }
