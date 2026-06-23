@@ -1,8 +1,23 @@
 # Wiki Template
 
-A reusable, schema-first wiki system for SDK/library documentation. Designed for AI-agent maintenance with hash-based change detection.
+A reusable, schema-first wiki system with hash-based change detection, a graphify knowledge
+graph, and an interactive **Command Centre** Obsidian plugin. Designed for AI-agent maintenance.
 
-## Quick Start
+## Two modes — pick one before setup
+
+This template runs in either of two modes (and a hub that spans many). The biggest setup
+mistake is mixing them, so decide first:
+
+- **Code Wiki** — document an existing SDK/codebase; pages are generated from source.
+- **Knowledge Vault** — a personal/business OS with entity dashboards (clients, finance,
+  projects, knowledge) via the Command Centre plugin. Works on an empty/new directory.
+- **Hub** — a vault that also federates other wikis on your machine (see `FEDERATION.md`).
+
+**For agent-driven setup, follow [`SETUP_PROMPT.md`](SETUP_PROMPT.md) — it starts by picking
+the mode, then branches.** The Quick Start below is the Code Wiki path; for a Knowledge Vault,
+use `SETUP_PROMPT.md` Track B.
+
+## Quick Start (Code Wiki mode)
 
 ### 1. Copy into your repo
 
