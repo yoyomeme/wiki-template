@@ -113,26 +113,56 @@ Non-obvious behavior or common pitfalls.
 ## Directory Layout
 
 ```
-wiki/
+wiki/                    ← open this folder as an Obsidian vault
 ├── WIKI.md              Schema (this system's rules)
+├── SCHEMA.md            Command Centre entity frontmatter contracts
+├── FEDERATION.md        Hub mode: spanning many wikis
 ├── index.md             Navigation hub
 ├── overview.md          One-page synthesis
 ├── api-reference.md     Condensed public API lookup
 ├── architecture.md      Layer diagram, service topology
 ├── configuration.md     Init/setup, singleton pattern
 ├── log.md               Chronological change log
-├── services/            One page per service/module
-├── types/               Public types, enums, error types
-├── flows/               Sequence diagrams, step-by-step flows
-├── api/                 HTTP/API endpoint docs
-├── security/            Crypto, key management, storage
-├── concepts/            Cross-cutting architectural ideas
+├── services/ types/ flows/ api/ security/ concepts/   Code-wiki domains
+├── finance/ clients/ projects/ knowledge/             Hub-vault business domains
+├── entities/            Frontmatter note templates (client, invoice, project, task, …)
+├── graph/               Generated graphify graph (graph.html, GRAPH_REPORT.md, nodes/)
+├── obsidian-plugin/     The Command Centre Obsidian plugin (TypeScript source)
+├── .command-centre/     dashboards.yaml — hub/widget config
+├── .obsidian/           Vault config (graph colors, enabled plugins)
 ├── .file-wiki-map.tsv   Source-to-wiki page mapping
 ├── .source-hashes.json  Hash baseline (auto-generated)
 ├── wiki-hash.sh         SHA-256 change detection
 ├── wiki-sync.sh         File-to-page sync
+├── wiki-graph.sh        graphify orchestration (build/update/export/install-plugin)
+├── wiki-federate.sh     Hub federation across many wikis
 └── wiki-auto-update.sh  Daily automation driver
 ```
+
+## Knowledge graph + Command Centre (Obsidian)
+
+This template doubles as an Obsidian vault with a graphify knowledge graph and an
+interactive **Command Centre** plugin (domain dashboards: Executive, Finance, Clients,
+Projects, Knowledge). After the steps above:
+
+```bash
+# 1. Build the graph (semantic pass runs through the /graphify skill; see wiki-graph.sh build)
+bash wiki/wiki-graph.sh build
+
+# 2. Build + install the Command Centre plugin
+cd wiki/obsidian-plugin && npm install && npm run build && cd -
+bash wiki/wiki-graph.sh install-plugin
+
+# 3. Open the wiki/ folder as an Obsidian vault, enable "Wiki Command Centre"
+#    under Settings → Community plugins, and click the gauge icon.
+```
+
+Dashboards read note **frontmatter** — see [SCHEMA.md](SCHEMA.md) and the `entities/`
+templates. To span many wikis from one desktop hub, see [FEDERATION.md](FEDERATION.md).
+
+When source or curated wiki pages change, `wiki-hash.sh` flags it; `wiki-graph.sh update`
+rebuilds the graph incrementally (code-only changes run headlessly; doc/wiki changes route
+to `/graphify --update`).
 
 ## Naming Conventions
 

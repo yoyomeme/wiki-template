@@ -1,0 +1,9 @@
+{
+  "id": "wiki-command-centre",
+  "name": "Wiki Command Centre",
+  "version": "0.1.0",
+  "minAppVersion": "1.4.0",
+  "description": "Domain-aware business dashboards (Executive, Finance, Client, Projects, Knowledge) over note frontmatter, with a graphify knowledge-graph backbone. Desktop only.",
+  "author": "wiki-template",
+  "isDesktopOnly": true
+}

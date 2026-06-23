@@ -1,0 +1,10 @@
+# Federation registry (hub vaults only). Copy to .wiki-roots.tsv or use:
+#   bash wiki/wiki-federate.sh register <name> <path-to-wiki> [--private]
+#
+# Columns (tab-separated): name <TAB> wiki-path <TAB> graph.json <TAB> flags
+# - flags: "private" excludes the domain from the merged master graph (still its own vault).
+#
+# name        wiki-path                         graph.json                              flags
+# projectA    /Users/me/code/projectA/wiki      /Users/me/code/projectA/wiki/graph/graph.json
+# projectB    /Users/me/code/projectB/wiki      /Users/me/code/projectB/wiki/graph/graph.json
+# finance     /Users/me/Desktop/finance/wiki    /Users/me/Desktop/finance/wiki/graph/graph.json   private

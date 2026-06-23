@@ -17,16 +17,43 @@ HASH_FILE="$REPO_ROOT/wiki/.source-hashes.json"
 # ============================================
 # EDIT THESE PATTERNS TO MATCH YOUR SOURCE CODE
 # ============================================
+# These are the files that, when changed, mark the wiki AND the knowledge graph stale.
+# The curated wiki pages are tracked too (graph scope = source + curated wiki), so editing
+# a wiki page also triggers a graph rebuild. The GENERATED graph (wiki/graph/) and
+# graphify's working dir (graphify-out/) are excluded in build_file_list below to avoid an
+# infinite rebuild loop — never add them here.
 TRACK_PATTERNS=(
   "{{SOURCE_PATTERNS}}"
   "docs/**/*.md"
+  # Curated wiki pages (part of the graph corpus). log.md / WIKI.md / index.md are
+  # intentionally NOT tracked — they churn on every sync and would self-trigger.
+  "wiki/overview.md"
+  "wiki/architecture.md"
+  "wiki/configuration.md"
+  "wiki/api-reference.md"
+  "wiki/services/**/*.md"
+  "wiki/types/**/*.md"
+  "wiki/flows/**/*.md"
+  "wiki/api/**/*.md"
+  "wiki/security/**/*.md"
+  "wiki/concepts/**/*.md"
+  # Hub-vault business domains (only present in a desktop hub vault; harmless otherwise).
+  "wiki/finance/**/*.md"
+  "wiki/clients/**/*.md"
+  "wiki/projects/**/*.md"
+  "wiki/knowledge/**/*.md"
 )
 
 # Build sorted list of tracked file paths (relative to repo root)
+# ANTI-LOOP: wiki/graph/ (graphify's published vault nodes) and graphify-out/ (its working
+# dir) are generated outputs. Hashing them would flag the wiki stale every rebuild → loop.
 build_file_list() {
   for pattern in "${TRACK_PATTERNS[@]}"; do
-    cd "$REPO_ROOT" && git ls-files -- "$pattern" 2>/dev/null || true
-  done | grep -v '/.build/' | grep -v '/node_modules/' | grep -v '/dist/' | sort -u
+    # ':(glob)' enables gitignore-style globbing so '/**/' matches zero-or-more directories
+    # (plain git pathspec does NOT — 'src/**/*.kt' would miss files directly in src/).
+    cd "$REPO_ROOT" && git ls-files -- ":(glob)$pattern" 2>/dev/null || true
+  done | grep -v '/.build/' | grep -v '/node_modules/' | grep -v '/dist/' \
+       | grep -v 'wiki/graph/' | grep -v 'graphify-out/' | sort -u
 }
 
 # Snapshot: hash all files and write to .source-hashes.json

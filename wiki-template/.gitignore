@@ -1,0 +1,18 @@
+# Generated knowledge graphs (rebuilt locally; project-specific, often large)
+graph/
+master-graph/
+graphify-out/
+.source-hashes.json
+.federation-hashes.json
+.wiki-roots.tsv
+repos/
+
+# Obsidian workspace churn (keep core-plugins/community-plugins/graph.json, ignore the rest)
+.obsidian/workspace*.json
+.obsidian/cache
+.obsidian/plugins/*/data.json
+
+# Plugin build (canonical source is obsidian-plugin/; the installed copy is generated)
+obsidian-plugin/node_modules/
+obsidian-plugin/main.js.map
+.obsidian/plugins/wiki-command-centre/

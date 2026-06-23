@@ -115,6 +115,10 @@ do_check() {
   echo "3. Update wiki pages to reflect source changes"
   echo "4. Run \`./wiki/wiki-sync.sh update\` to refresh the hash baseline"
   echo "5. Append to \`wiki/log.md\`"
+  echo ""
+  echo "## Knowledge Graph"
+  echo "The same change also affects the graphify graph. Run \`./wiki/wiki-graph.sh update\`"
+  echo "(code-only changes rebuild headlessly; doc/wiki changes print a \`/graphify --update\` step)."
 }
 
 # Update: refresh hash snapshot

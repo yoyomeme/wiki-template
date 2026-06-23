@@ -58,6 +58,19 @@ do_detect() {
   echo "  3. Update wiki pages to reflect source changes"
   echo "  4. Run: bash wiki/wiki-auto-update.sh refresh"
   echo "  5. Append entry to wiki/log.md"
+  echo ""
+
+  # GRAPH: route the graph rebuild by what changed (code-only is headless; docs need the LLM).
+  local graph_status
+  graph_status=$(bash "$SCRIPT_DIR/wiki-graph.sh" status --json 2>/dev/null || echo '{}')
+  local doc_changed
+  doc_changed=$(echo "$graph_status" | grep -o '"doc_changed":[0-9]*' | grep -o '[0-9]*' || echo 0)
+  echo "GRAPH:"
+  if [ "${doc_changed:-0}" -gt 0 ]; then
+    echo "  Doc/wiki changed → run: /graphify <corpus> --update  then  bash wiki/wiki-graph.sh export && bash wiki/wiki-graph.sh refresh"
+  else
+    echo "  Code-only → run: bash wiki/wiki-graph.sh update"
+  fi
 }
 
 # Refresh: update hash baseline after wiki pages are updated

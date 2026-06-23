@@ -98,9 +98,30 @@ Replace the template entry in `wiki/log.md` with the actual date and page count:
 - Source: [source patterns]
 ```
 
-## Step 10: Verify
+## Step 10: Build the knowledge graph and install the Command Centre
+
+1. Set `GRAPH_SOURCES` in `wiki/wiki-graph.sh` to your source root(s) (e.g. `src`).
+2. Build the graph (the semantic pass runs through the `/graphify` skill):
+   ```bash
+   bash wiki/wiki-graph.sh build
+   # follow the printed /graphify command, then:
+   bash wiki/wiki-graph.sh export
+   bash wiki/wiki-graph.sh refresh
+   ```
+3. Build and install the Command Centre plugin:
+   ```bash
+   cd wiki/obsidian-plugin && npm install && npm run build && cd -
+   bash wiki/wiki-graph.sh install-plugin
+   ```
+4. Open the `wiki/` folder as an Obsidian vault and enable "Wiki Command Centre" under
+   Settings → Community plugins.
+5. For a hub vault spanning multiple wikis, follow `wiki/FEDERATION.md`.
+
+## Step 11: Verify
 
 1. Run `bash wiki/wiki-hash.sh status` — should say "UP TO DATE"
-2. Check that every page linked in `index.md` exists
-3. Check that cross-references in each page point to existing files
-4. Report the final file count and structure to the user
+2. Run `bash wiki/wiki-graph.sh status` — graph published, not stale
+3. Check that every page linked in `index.md` exists
+4. Check that cross-references in each page point to existing files
+5. Open the vault in Obsidian → the Command Centre gauge icon opens; the Graph hub loads
+6. Report the final file count and structure to the user

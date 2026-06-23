@@ -145,3 +145,22 @@ When making significant changes:
 2. Update the affected wiki pages
 3. Run `./wiki/wiki-sync.sh update` to refresh the baseline
 4. Append an entry to `log.md`
+
+## Obsidian vault + knowledge graph
+
+The `wiki/` directory is also an Obsidian vault. A graphify knowledge graph is built over
+the **source code + curated wiki pages** and published into `wiki/graph/` so Obsidian (and
+the Command Centre plugin) can read it. The graph stays in sync with the codebase through the
+**same hash check** that drives page staleness:
+
+- `wiki-graph.sh build` — first full build (semantic extraction over docs needs the LLM, so
+  it delegates to the `/graphify` skill; the deterministic exports are scripted).
+- `wiki-graph.sh update` — incremental, **gated by `wiki-hash.sh diff`**. It routes by what
+  changed: **code-only** changes rebuild headlessly (AST, no LLM); **doc/wiki** changes print
+  an `ACTION_REQUIRED` step to run `/graphify … --update` (semantic re-extraction).
+- Generated output (`wiki/graph/`, `graphify-out/`) is excluded from the hash in
+  `wiki-hash.sh` to avoid a rebuild loop, and is gitignored.
+
+The **Command Centre** is an Obsidian plugin (`obsidian-plugin/`) that renders domain-aware
+business dashboards from note frontmatter (see `SCHEMA.md`) with the graph as a query
+backbone. For spanning many wikis from one desktop hub, see `FEDERATION.md`.

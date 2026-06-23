@@ -3,6 +3,15 @@
 > Structured knowledge base for the {{PROJECT_NAME}} SDK.
 > Purpose: enable developers and AI agents to understand, use, and port this SDK.
 
+## Command Centre
+
+> The interactive Command Centre is the **Obsidian plugin** (gauge icon / command palette →
+> "Open Command Centre") — domain dashboards over note frontmatter with a knowledge-graph
+> backbone. No-plugin fallback: open [graph/graph.html](graph/graph.html) for the interactive graph.
+>
+> - [SCHEMA](SCHEMA.md) — entity frontmatter contracts and how dashboards auto-appear
+> - [FEDERATION](FEDERATION.md) — span many wikis from one desktop hub
+
 ## Schema
 
 - [WIKI](WIKI.md) — Wiki schema: three-layer model, page template, maintenance rules, automation
